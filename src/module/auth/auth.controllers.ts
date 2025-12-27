@@ -22,7 +22,12 @@ export const authController = {
   login: async (req: Request, res: Response) => {
     const { email, password } = req.body;
     const { user, accessToken } = await authService.login({ email, password });
-    res.cookie("accessToken", accessToken, appConfig.ACCESS_COOKIE_OPTIONS);
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false, // must be false for localhost
+      path: "/", // VERY IMPORTANT
+    });
     return successResponse(res, "User Logged In Successfully", user, 200);
   },
 };
