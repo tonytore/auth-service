@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
-import { StatusCodes } from 'http-status-codes';
-import { ObjectSchema } from 'joi';
-import { errorResponse } from '../utils/helper/response_helper';
+import { Request, Response, NextFunction } from "express";
+import { StatusCodes } from "http-status-codes";
+import { ObjectSchema } from "joi";
+import { errorResponse } from "../utils/helper/response_helper";
 
 export const validate = (schema: ObjectSchema) => {
   return (req: Request, res: Response, next: NextFunction): void => {
@@ -22,16 +22,16 @@ export const validate = (schema: ObjectSchema) => {
         // Normalize field path: strip the first segment (body/params/query/headers)
         const field =
           err.path.length > 1
-            ? String(err.path.slice(1).join('.'))
-            : String(err.path[0] || 'unknown');
+            ? String(err.path.slice(1).join("."))
+            : String(err.path[0] || "unknown");
 
         if (!errors[field]) errors[field] = [];
-        errors[field].push(err.message.replace(/"/g, ''));
+        errors[field].push(err.message.replace(/"/g, ""));
       });
 
       errorResponse(
         res,
-        'error.validationFailed',
+        "error.validationFailed",
         errors,
         StatusCodes.BAD_REQUEST,
       );

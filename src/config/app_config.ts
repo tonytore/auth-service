@@ -2,12 +2,13 @@ import env from "dotenv";
 env.config();
 
 const appConfig = {
+  PORT: process.env.PORT || 3000,
   DB_HOST: process.env.DB_HOST,
   DB_PORT: process.env.DB_PORT,
   DB_USER: process.env.DB_USER,
-  BLOG_DB: process.env.BLOG_DB,
+  BLOG_AUTH_DB: process.env.BLOG_AUTH_DB,
   DB_PASSWORD: process.env.DB_PASSWORD,
-  LOKI_URL: process.env.LOKI_URL || "http://loki:3100",
+  LOKI_URL: process.env.LOKI_URL || "http://localhost:3100",
   APP_NAME: process.env.APP_NAME,
   LOG_LEVEL: process.env.LOG_LEVEL,
   NODE_ENV: process.env.NODE_ENV as "development" | "production",
@@ -21,7 +22,7 @@ const appConfig = {
     httpOnly: true,
     secure: false,
     sameSite: "lax" as const,
-    maxAge: 15 * 60 * 1000
+    maxAge: 15 * 60 * 1000,
   },
 };
 

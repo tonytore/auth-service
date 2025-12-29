@@ -7,7 +7,7 @@ import { logger } from "../utils/logger/logger";
 const pool = new Pool({
   host: appConfig.DB_HOST,
   port: Number(appConfig.DB_PORT),
-  database: appConfig.BLOG_DB,
+  database: appConfig.BLOG_AUTH_DB,
   user: appConfig.DB_USER,
   password: appConfig.DB_PASSWORD,
   max: 5,

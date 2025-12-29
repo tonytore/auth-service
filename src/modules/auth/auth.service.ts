@@ -7,6 +7,8 @@ import {
   UnauthenticatedError,
 } from "../../utils/error/custom_error_handler";
 import appConfig from "../../config/app_config";
+import { generateRefreshToken, hashToken } from "@/utils/helper/token";
+import { sessionRepository } from "./session.repository";
 
 export interface UserData {
   email: string;
@@ -57,18 +59,21 @@ export const authService = {
     const accessToken = jwt.sign(
       { userId: user.id, role: user.role },
       appConfig.ACCESS_TOKEN_SECRET!,
-      { expiresIn: appConfig.ACCESS_TOKEN_EXPIRY }
+      { expiresIn: appConfig.ACCESS_TOKEN_EXPIRY },
     );
 
-    const refreshToken = jwt.sign(
-      { userId: user.id, role: user.role },
-      appConfig.REFRESH_TOKEN_SECRET!,
-      { expiresIn: appConfig.REFRESH_TOKEN_EXPIRY }
-    );
+    const rowRefreshToken = generateRefreshToken();
+    const hashedToken = hashToken(rowRefreshToken);
+
+    await sessionRepository.create({
+      userId: user.id,
+      refreshToken: hashedToken,
+      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days
+    });
 
     const { password: _password, ...authUser } = user;
 
-    return { user: authUser, accessToken, refreshToken };
+    return { user: authUser, accessToken, refreshToken: rowRefreshToken };
   },
   getUserService: async (userId: string) => {
     const users = await authRepository.listUserRepository();

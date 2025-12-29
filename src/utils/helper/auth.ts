@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { UnauthenticatedError } from "@/utils/error/custom_error_handler.js";
+import { UnauthenticatedError } from "@/utils/error/custom_error_handler";
 import { Role } from "@prisma/client";
 import appConfig from "@/config/app_config";
 

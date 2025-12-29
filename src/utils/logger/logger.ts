@@ -1,4 +1,3 @@
-
 import winston, { Logger } from "winston";
 import DailyRotateFile from "winston-daily-rotate-file";
 import LokiTransport from "winston-loki";
@@ -28,7 +27,8 @@ const winstonLogger = (
       host: lokiUrl,
       format: winston.format.json(),
       replaceTimestamp: true,
-      onConnectionError: (err: unknown) => console.error("Loki connection error:", err),
+      onConnectionError: (err: unknown) =>
+        console.error("Loki connection error:", err),
     },
     file: new DailyRotateFile({
       filename: "logs/application%DATE%.log",
@@ -36,7 +36,10 @@ const winstonLogger = (
       zippedArchive: true,
       maxSize: "10m",
       maxFiles: "14d",
-      format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json(),
+      ),
     }),
   };
 
@@ -58,7 +61,7 @@ const winstonLogger = (
 };
 
 const logger = winstonLogger(
-  appConfig.LOKI_URL || "http://loki:3100",
+  appConfig.LOKI_URL || "http://localhost:3100",
   appConfig.APP_NAME || "auth-service",
   appConfig.LOG_LEVEL || "info",
   appConfig.NODE_ENV || "development",

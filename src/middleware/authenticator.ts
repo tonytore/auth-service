@@ -4,42 +4,44 @@ import { logger } from "@/utils/logger/logger";
 import { verifyAccessToken } from "@/utils/helper/auth";
 import { db } from "@/config/db";
 
-export async function authMiddleware(
-  req: Request,
-  _res: Response,
-  next: NextFunction,
-) {
-  const accessToken = req.cookies?.accessToken;
-  if (!accessToken) {
-    throw new UnauthenticatedError("Authentication required", "AuthMiddleware");
-  }
+import catchAsync from "@/utils/helper/catch_async";
 
-  const payload = verifyAccessToken(accessToken);
+export const authMiddleware = catchAsync(
+  async (req: Request, _res: Response, next: NextFunction) => {
+    const accessToken = req.cookies?.accessToken;
+    if (!accessToken) {
+      throw new UnauthenticatedError(
+        "Authentication required",
+        "AuthMiddleware",
+      );
+    }
 
-  // 🔒 Re-check user existence
-  const user = await db.user.findUnique({
-    where: { id: payload.userId },
-    select: {
-      id: true,
-      email: true,
-      role: true,
-      name: true,
-      avatarUrl: true,
-    },
-  });
+    const payload = verifyAccessToken(accessToken);
 
-  if (!user) {
-    throw new UnauthenticatedError("User no longer exists", "AuthMiddleware");
-  }
+    // 🔒 Re-check user existence
+    const user = await db.user.findUnique({
+      where: { id: payload.userId },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        name: true,
+        avatarUrl: true,
+      },
+    });
 
-  req.user = {
-  ...user,
-  name: user.name ?? undefined,
-  avatarUrl: user.avatarUrl ?? undefined,
-};
-  next();
-}
+    if (!user) {
+      throw new UnauthenticatedError("User no longer exists", "AuthMiddleware");
+    }
 
+    req.user = {
+      ...user,
+      name: user.name ?? undefined,
+      avatarUrl: user.avatarUrl ?? undefined,
+    };
+    next();
+  },
+);
 
 export async function optAuthMiddleware(
   req: Request,

@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
-import { errorResponse } from "../helper/response_helper.js";
-import { CustomError } from "./custom_error_handler.js";
 import { Prisma } from "@prisma/client";
-import { logger } from "../logger/logger.js";
+import { logger } from "../logger/logger";
+import { CustomError } from "./custom_error_handler";
+import { errorResponse } from "../helper/response_helper";
 const errorHandler = (
   err: Error,
   req: Request,

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { NotFoundError } from "./custom_error_handler.js";
+import { NotFoundError } from "./custom_error_handler";
 
 const notFoundHandler = (req: Request, res: Response, next: NextFunction) => {
   next(
