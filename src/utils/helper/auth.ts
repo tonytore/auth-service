@@ -6,6 +6,7 @@ import appConfig from "@/config/app_config";
 interface AccessTokenPayload {
   userId: string;
   role: Role;
+  sessionId: string;
 }
 
 const { ACCESS_TOKEN_SECRET } = appConfig;

@@ -6,9 +6,9 @@ import { authMiddleware } from "@/middleware/authenticator";
 
 export const authRoute = Router();
 
-authRoute.get("/me", authMiddleware, authController.listAllUsers);
+authRoute.get("/me", authMiddleware, authController.getMe);
 authRoute.post("/register", validate(registerSchema), authController.register);
 authRoute.post("/login", validate(loginSchema), authController.login);
 authRoute.post("/refresh", authController.refresh);
-authRoute.post("/logout", authController.logout);
+authRoute.post("/logout", authMiddleware, authController.logout);
 

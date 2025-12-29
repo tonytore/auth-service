@@ -40,15 +40,13 @@ export const authController = {
       "User Logged In Successfully",
       {
         data: {
-          user,
-          accessToken,
-          refreshToken,
+          user
         },
       },
       200
     );
   }),
-  listAllUsers: catchAsync(async (req: Request, res: Response) => {
+  getMe: catchAsync(async (req: Request, res: Response) => {
     const userId = req.user?.id;
     const user = await authService.getUserService(userId);
     logger.info("User List", user);
@@ -78,20 +76,8 @@ export const authController = {
   }),
 
   logout: catchAsync(async (req: Request, res: Response) => {
-    const { refreshToken } = req.cookies;
-    await authService.logout(refreshToken);
-    res.clearCookie("accessToken", {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: false,
-      path: "/",
-    });
-    res.clearCookie("refreshToken", {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: false,
-      path: "/",
-    });
+    await authService.logout(req.sessionId!);
+    res.clearCookie("accessToken");
     return successResponse(res, "User logged out successfully", null, 200);
   }),
 };

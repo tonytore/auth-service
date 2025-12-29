@@ -1,3 +1,4 @@
+import { logger } from "@/utils/logger/logger";
 import { db } from "../../config/db";
 import { UserData } from "./auth.service";
 
@@ -27,8 +28,33 @@ export const authRepository = {
       });
       return filteredUsers;
     } catch (error) {
-      console.error(error);
+      logger.info(error);
       throw error;
     }
+  },
+  createSession: async (data: {
+    userId: string;
+    refreshToken: string;
+    userAgent?: string;
+    ipAddress?: string;
+    expiresAt: Date;
+  }) => {
+    return db.session.create({
+      data,
+    });
+  },
+  findSessionById: async (id: string) => {
+    return db.session.findUnique({
+      where: { id },
+      include: {
+        user: true,
+      },
+    });
+  },
+  revokeSession: async (id: string) => {
+    return db.session.update({
+      where: { id },
+      data: { revokedAt: new Date() },
+    });
   },
 };

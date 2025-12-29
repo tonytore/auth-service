@@ -55,21 +55,25 @@ export const authService = {
     if (!isValid) {
       throw new UnauthenticatedError("Invalid credentials", "AuthService");
     }
-
-    const accessToken = jwt.sign(
-      { userId: user.id, role: user.role },
-      appConfig.ACCESS_TOKEN_SECRET!,
-      { expiresIn: appConfig.ACCESS_TOKEN_EXPIRY }
-    );
-
-    const rowRefreshToken = generateRefreshToken();
+   
+     const rowRefreshToken = generateRefreshToken();
     const hashedToken = hashToken(rowRefreshToken);
-
-    await sessionRepository.create({
+    
+    const session = await sessionRepository.create({
       userId: user.id,
       refreshToken: hashedToken,
       expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days
     });
+
+    const accessToken = jwt.sign(
+      { userId: user.id, role: user.role, sessionId: session.id },
+      appConfig.ACCESS_TOKEN_SECRET!,
+      { expiresIn: appConfig.ACCESS_TOKEN_EXPIRY }
+    );
+
+   
+
+    
 
     const { password: _password, ...authUser } = user;
 
@@ -77,8 +81,8 @@ export const authService = {
   },
   getUserService: async (userId: string) => {
     const users = await authRepository.listUserRepository();
-    users.filter((user) => user.id === userId);
-    return users;
+    
+    return users.filter((user) => user.id === userId);;
   },
   refresh: async (refreshToken: string) => {
     const hashedToken = hashToken(refreshToken);
@@ -90,37 +94,33 @@ export const authService = {
         "AuthService.refresh"
       );
     }
-    if (session.expiresAt < new Date()) {
+    if (session.expiresAt < new Date() || session.revokedAt) {
       throw new UnauthenticatedError(
         "Refresh token expired",
         "AuthService.refresh"
       );
     }
 
-    await sessionRepository.revokeSession(session.id);
+    await authRepository.revokeSession(session.id);
+
     const newRefreshToken = generateRefreshToken();
     const newHashedRefreshToken = hashToken(newRefreshToken);
 
-    await sessionRepository.create({
+    const newSession = await sessionRepository.create({
       userId: session.userId,
       refreshToken: newHashedRefreshToken,
       expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days
     });
 
     const accessToken = jwt.sign(
-      { userId: session.user.id, role: session.user.role },
+      { userId: session.user.id, role: session.user.role, sessionId: newSession.id },
       appConfig.ACCESS_TOKEN_SECRET!,
       { expiresIn: appConfig.ACCESS_TOKEN_EXPIRY }
     );
 
     return { accessToken, refreshToken: newRefreshToken };
   },
-  logout: async (refreshToken: string) => {
-    if (!refreshToken) {
-      throw new UnauthenticatedError("No refresh token provided", "AuthService");
-    }
-    
-    const hashedToken = hashToken(refreshToken);
-    await sessionRepository.revokedSessionByToken(hashedToken);
+  logout: async (sessionId: string) => {
+    await authRepository.revokeSession(sessionId);
   }
 };
