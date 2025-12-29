@@ -1,7 +1,9 @@
 import { Request, Response } from "express";
 import { successResponse } from "../../utils/helper/response_helper";
-import appConfig from "../../config/app_config";
 import { authService } from "./auth.service";
+import catchAsync from "@/utils/helper/catch_async";
+import { logger } from "@/utils/logger/logger";
+import appConfig from "@/config/app_config";
 
 export const authController = {
   register: async (req: Request, res: Response) => {
@@ -21,13 +23,23 @@ export const authController = {
 
   login: async (req: Request, res: Response) => {
     const { email, password } = req.body;
-    const { user, accessToken } = await authService.login({ email, password });
-    res.cookie("accessToken", accessToken, {
+    const { user, accessToken, refreshToken } = await authService.login({
+      email,
+      password,
+    });
+    res.cookie("accessToken", accessToken, appConfig.ACCESS_COOKIE_OPTIONS);
+    res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
+      secure: appConfig.NODE_ENV === "production",
       sameSite: "lax",
-      secure: false, // must be false for localhost
-      path: "/", // VERY IMPORTANT
+      path: "/auth/refresh",
     });
     return successResponse(res, "User Logged In Successfully", user, 200);
   },
+  listAllUsers: catchAsync(async (req: Request, res: Response) => {
+    const userId = req.user?.id
+    const user = await authService.getUserService(userId);
+    logger.info("User List", user);
+    return successResponse(res, "User List", user);
+  }),
 };

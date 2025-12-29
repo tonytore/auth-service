@@ -2,7 +2,10 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { authRepository } from "./auth.repository";
 import { Role } from "@prisma/client";
-import { BadRequestError, UnauthenticatedError } from "../../utils/error/custom_error_handler";
+import {
+  BadRequestError,
+  UnauthenticatedError,
+} from "../../utils/error/custom_error_handler";
 import appConfig from "../../config/app_config";
 
 export interface UserData {
@@ -31,24 +34,10 @@ export const authService = {
       role: payload.role,
     });
 
-    const accessToken = jwt.sign(
-      { userId: user.id, role: user.role },
-      appConfig.ACCESS_TOKEN_SECRET!,
-      { expiresIn: appConfig.ACCESS_TOKEN_EXPIRY },
-    );
-
-    const refreshToken = jwt.sign(
-      { userId: user.id, role: user.role },
-      appConfig.REFRESH_TOKEN_SECRET!,
-      { expiresIn: appConfig.REFRESH_TOKEN_EXPIRY },
-    );
-
     const { password: _password, ...safeUser } = user;
 
     return {
       ...safeUser,
-      accessToken,
-      refreshToken,
     };
   },
 
@@ -68,11 +57,22 @@ export const authService = {
     const accessToken = jwt.sign(
       { userId: user.id, role: user.role },
       appConfig.ACCESS_TOKEN_SECRET!,
-      { expiresIn: appConfig.ACCESS_TOKEN_EXPIRY },
+      { expiresIn: appConfig.ACCESS_TOKEN_EXPIRY }
+    );
+
+    const refreshToken = jwt.sign(
+      { userId: user.id, role: user.role },
+      appConfig.REFRESH_TOKEN_SECRET!,
+      { expiresIn: appConfig.REFRESH_TOKEN_EXPIRY }
     );
 
     const { password: _password, ...authUser } = user;
 
-    return { user: authUser, accessToken };
+    return { user: authUser, accessToken, refreshToken };
+  },
+  getUserService: async (userId: string) => {
+    const users = await authRepository.listUserRepository();
+    users.filter((user) => user.id === userId);
+    return users;
   },
 };

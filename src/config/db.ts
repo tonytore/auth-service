@@ -4,7 +4,6 @@ import { Pool } from "pg";
 import appConfig from "./app_config";
 import { logger } from "../utils/logger/logger";
 
-
 const pool = new Pool({
   host: appConfig.DB_HOST,
   port: Number(appConfig.DB_PORT),
@@ -24,6 +23,8 @@ export async function connectToDB() {
     logger.info("[database]: connected!");
   } catch (err) {
     console.log("[database]: connection error: ", err);
-    await db.$disconnect();
+    process.on("SIGTERM", async () => {
+      await db.$disconnect();
+    });
   }
 }

@@ -21,7 +21,7 @@ const appConfig = {
     httpOnly: true,
     secure: false,
     sameSite: "lax" as const,
-    maxAge: 54000000, // 15 minutes in milliseconds
+    maxAge: 15 * 60 * 1000
   },
 };
 

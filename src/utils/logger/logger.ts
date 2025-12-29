@@ -59,7 +59,7 @@ const winstonLogger = (
 
 const logger = winstonLogger(
   appConfig.LOKI_URL || "http://loki:3100",
-  appConfig.APP_NAME || "blog-backend",
+  appConfig.APP_NAME || "auth-service",
   appConfig.LOG_LEVEL || "info",
   appConfig.NODE_ENV || "development",
 );
