@@ -16,6 +16,9 @@ export const sessionRepository = {
   findByRefreshToken: async (refreshToken: string) => {
     return db.session.findUnique({
       where: { refreshToken },
+      include: {
+        user: true,
+      },
     });
   },
   revokeSession: async (id: string) => {

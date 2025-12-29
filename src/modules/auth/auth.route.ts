@@ -9,3 +9,4 @@ export const authRoute = Router();
 authRoute.get("/me", authMiddleware, authController.listAllUsers);
 authRoute.post("/register", validate(registerSchema), authController.register);
 authRoute.post("/login", validate(loginSchema), authController.login);
+authRoute.post("/refresh", authController.refresh);

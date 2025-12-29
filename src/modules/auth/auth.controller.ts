@@ -4,6 +4,7 @@ import { authService } from "./auth.service";
 import catchAsync from "@/utils/helper/catch_async";
 import { logger } from "@/utils/logger/logger";
 import appConfig from "@/config/app_config";
+import { UnauthenticatedError } from "@/utils/error/custom_error_handler";
 
 export const authController = {
   register: catchAsync(async (req: Request, res: Response) => {
@@ -34,12 +35,45 @@ export const authController = {
       secure: false,
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
-    return successResponse(res, "User Logged In Successfully", user, 200);
+    return successResponse(
+      res,
+      "User Logged In Successfully",
+      {
+        data: {
+          user,
+          accessToken,
+          refreshToken,
+        },
+      },
+      200
+    );
   }),
   listAllUsers: catchAsync(async (req: Request, res: Response) => {
     const userId = req.user?.id;
     const user = await authService.getUserService(userId);
     logger.info("User List", user);
     return successResponse(res, "User List", user);
+  }),
+  refresh: catchAsync(async (req: Request, res: Response) => {
+    const { refreshToken } = req.cookies;
+    if (!refreshToken) {
+      throw new UnauthenticatedError(
+        "No refresh token provided",
+        "AuthController"
+      );
+    }
+    const tokens = await authService.refresh(refreshToken);
+    res.cookie(
+      "accessToken",
+      tokens.accessToken,
+      appConfig.ACCESS_COOKIE_OPTIONS
+    );
+    res.cookie("refreshToken", tokens.refreshToken, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false,
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+    });
+    return successResponse(res, "Tokens refreshed successfully", null, 200);
   }),
 };

@@ -59,7 +59,7 @@ export const authService = {
     const accessToken = jwt.sign(
       { userId: user.id, role: user.role },
       appConfig.ACCESS_TOKEN_SECRET!,
-      { expiresIn: appConfig.ACCESS_TOKEN_EXPIRY },
+      { expiresIn: appConfig.ACCESS_TOKEN_EXPIRY }
     );
 
     const rowRefreshToken = generateRefreshToken();
@@ -79,5 +79,40 @@ export const authService = {
     const users = await authRepository.listUserRepository();
     users.filter((user) => user.id === userId);
     return users;
+  },
+  refresh: async (refreshToken: string) => {
+    const hashedToken = hashToken(refreshToken);
+    const session = await sessionRepository.findByRefreshToken(hashedToken);
+
+    if (!session) {
+      throw new UnauthenticatedError(
+        "Invalid refresh token",
+        "AuthService.refresh"
+      );
+    }
+    if (session.expiresAt < new Date()) {
+      throw new UnauthenticatedError(
+        "Refresh token expired",
+        "AuthService.refresh"
+      );
+    }
+
+    await sessionRepository.revokeSession(session.id);
+    const newRefreshToken = generateRefreshToken();
+    const newHashedRefreshToken = hashToken(newRefreshToken);
+
+    await sessionRepository.create({
+      userId: session.userId,
+      refreshToken: newHashedRefreshToken,
+      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days
+    });
+
+    const accessToken = jwt.sign(
+      { userId: session.user.id, role: session.user.role },
+      appConfig.ACCESS_TOKEN_SECRET!,
+      { expiresIn: appConfig.ACCESS_TOKEN_EXPIRY }
+    );
+
+    return { accessToken, refreshToken: newRefreshToken };
   },
 };
