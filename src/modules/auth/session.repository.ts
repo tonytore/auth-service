@@ -27,4 +27,13 @@ export const sessionRepository = {
       data: { isRevoked: true },
     });
   },
+  revokedSessionByToken: async (hashedRefreshToken: string) => {
+    return db.session.updateMany({
+      where: { 
+        refreshToken: hashedRefreshToken, 
+        isRevoked: false 
+      },
+      data: { isRevoked: true },
+    });
+  },
 };

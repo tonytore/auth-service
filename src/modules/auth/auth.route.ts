@@ -10,3 +10,5 @@ authRoute.get("/me", authMiddleware, authController.listAllUsers);
 authRoute.post("/register", validate(registerSchema), authController.register);
 authRoute.post("/login", validate(loginSchema), authController.login);
 authRoute.post("/refresh", authController.refresh);
+authRoute.post("/logout", authController.logout);
+

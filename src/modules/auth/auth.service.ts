@@ -115,4 +115,12 @@ export const authService = {
 
     return { accessToken, refreshToken: newRefreshToken };
   },
+  logout: async (refreshToken: string) => {
+    if (!refreshToken) {
+      throw new UnauthenticatedError("No refresh token provided", "AuthService");
+    }
+    
+    const hashedToken = hashToken(refreshToken);
+    await sessionRepository.revokedSessionByToken(hashedToken);
+  }
 };

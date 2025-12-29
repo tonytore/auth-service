@@ -89,3 +89,23 @@
 {"level":"info","message":"Auth Service running on port http://localhost:4000","service":"auth-service","timestamp":"2025-12-29T14:24:22.192Z"}
 {"level":"info","message":"Auth Service running on port http://localhost:4000","service":"auth-service","timestamp":"2025-12-29T14:24:29.265Z"}
 {"level":"info","message":"Auth Service running on port http://localhost:4000","service":"auth-service","timestamp":"2025-12-29T14:24:31.992Z"}
+{"level":"info","message":"Auth Service running on port http://localhost:4000","service":"auth-service","timestamp":"2025-12-29T14:50:03.283Z"}
+{"level":"info","message":"Auth Service running on port http://localhost:4000","service":"auth-service","timestamp":"2025-12-29T14:50:41.341Z"}
+{"level":"info","message":"Auth Service running on port http://localhost:4000","service":"auth-service","timestamp":"2025-12-29T14:50:46.885Z"}
+{"level":"info","message":"Auth Service running on port http://localhost:4000","service":"auth-service","timestamp":"2025-12-29T14:50:52.496Z"}
+{"level":"info","message":"Auth Service running on port http://localhost:4000","service":"auth-service","timestamp":"2025-12-29T14:50:55.539Z"}
+{"level":"info","message":"Auth Service running on port http://localhost:4000","service":"auth-service","timestamp":"2025-12-29T14:50:58.054Z"}
+{"level":"info","message":"Auth Service running on port http://localhost:4000","service":"auth-service","timestamp":"2025-12-29T14:51:07.256Z"}
+{"level":"info","message":"Auth Service running on port http://localhost:4000","service":"auth-service","timestamp":"2025-12-29T14:51:16.475Z"}
+{"level":"info","message":"Auth Service running on port http://localhost:4000","service":"auth-service","timestamp":"2025-12-29T14:51:18.816Z"}
+{"level":"info","message":"Auth Service running on port http://localhost:4000","service":"auth-service","timestamp":"2025-12-29T14:51:21.647Z"}
+{"level":"info","message":"Auth Service running on port http://localhost:4000","service":"auth-service","timestamp":"2025-12-29T14:52:46.063Z"}
+{"level":"info","message":"Auth Service running on port http://localhost:4000","service":"auth-service","timestamp":"2025-12-29T14:54:16.324Z"}
+{"level":"info","message":"Auth Service running on port http://localhost:4000","service":"auth-service","timestamp":"2025-12-29T14:54:20.918Z"}
+{"level":"info","message":"Auth Service running on port http://localhost:4000","service":"auth-service","timestamp":"2025-12-29T14:54:29.842Z"}
+{"level":"info","message":"Auth Service running on port http://localhost:4000","service":"auth-service","timestamp":"2025-12-29T14:54:32.550Z"}
+{"level":"info","message":"Auth Service running on port http://localhost:4000","service":"auth-service","timestamp":"2025-12-29T14:54:34.715Z"}
+{"level":"info","message":"Auth Service running on port http://localhost:4000","service":"auth-service","timestamp":"2025-12-29T14:55:28.071Z"}
+{"level":"info","message":"Auth Service running on port http://localhost:4000","service":"auth-service","timestamp":"2025-12-29T14:55:51.143Z"}
+{"comingFrom":"AuthMiddleware","ip":"127.0.0.1","level":"error","message":"Authentication required","requestId":"N/A","service":"auth-service","stack":"Error: Authentication required\n    at /home/teme/Desktop/blogMicro/auth-service/src/middleware/authenticator.ts:13:13\n    at /home/teme/Desktop/blogMicro/auth-service/src/utils/helper/catch_async.ts:11:5\n    at Layer.handleRequest (/home/teme/Desktop/blogMicro/auth-service/node_modules/router/lib/layer.js:152:17)\n    at next (/home/teme/Desktop/blogMicro/auth-service/node_modules/router/lib/route.js:157:13)\n    at Route.dispatch (/home/teme/Desktop/blogMicro/auth-service/node_modules/router/lib/route.js:117:3)\n    at handle (/home/teme/Desktop/blogMicro/auth-service/node_modules/router/index.js:435:11)\n    at Layer.handleRequest (/home/teme/Desktop/blogMicro/auth-service/node_modules/router/lib/layer.js:152:17)\n    at /home/teme/Desktop/blogMicro/auth-service/node_modules/router/index.js:295:15\n    at processParams (/home/teme/Desktop/blogMicro/auth-service/node_modules/router/index.js:582:12)\n    at next (/home/teme/Desktop/blogMicro/auth-service/node_modules/router/index.js:291:5)","status":"error","statusCode":401,"timestamp":"2025-12-29T15:01:43.888Z","userAgent":"PostmanRuntime/7.49.1"}
+{"0":{"avatarUrl":"https://www.gravatar.com/avatar/","createdAt":"2025-12-29T13:40:47.064Z","email":"admin2@gmail.com","id":"cmjr7hra00000diczc7wirm7p","name":null,"role":"ADMIN","updatedAt":"2025-12-29T13:40:47.064Z"},"level":"info","message":"User List","service":"auth-service","timestamp":"2025-12-29T15:01:54.826Z"}

@@ -76,4 +76,22 @@ export const authController = {
     });
     return successResponse(res, "Tokens refreshed successfully", null, 200);
   }),
+
+  logout: catchAsync(async (req: Request, res: Response) => {
+    const { refreshToken } = req.cookies;
+    await authService.logout(refreshToken);
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false,
+      path: "/",
+    });
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false,
+      path: "/",
+    });
+    return successResponse(res, "User logged out successfully", null, 200);
+  }),
 };
