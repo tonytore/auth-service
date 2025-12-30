@@ -12,7 +12,7 @@ export const authMiddleware = catchAsync(
     if (!accessToken) {
       throw new UnauthenticatedError(
         "Authentication required",
-        "AuthMiddleware"
+        "AuthMiddleware",
       );
     }
 
@@ -22,7 +22,7 @@ export const authMiddleware = catchAsync(
     if (!session || session.revokedAt || session.expiresAt < new Date()) {
       throw new UnauthenticatedError(
         "Session is no longer valid or expired or revoked",
-        "AuthMiddleware"
+        "AuthMiddleware",
       );
     }
 
@@ -33,13 +33,13 @@ export const authMiddleware = catchAsync(
 
     req.sessionId = payload.sessionId;
     next();
-  }
+  },
 );
 
 export async function optAuthMiddleware(
   req: Request,
   _res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const accessToken = req.cookies?.accessToken;
   if (!accessToken) {

@@ -32,6 +32,11 @@ export const authRepository = {
       throw error;
     }
   },
+  findById: async (id: string) => {
+    return db.user.findUnique({
+      where: { id },
+    });
+  },
   createSession: async (data: {
     userId: string;
     refreshToken: string;
@@ -54,6 +59,28 @@ export const authRepository = {
   revokeSession: async (id: string) => {
     return db.session.update({
       where: { id },
+      data: { revokedAt: new Date() },
+    });
+  },
+  findActiveByUser: async (userId: string) => {
+    return db.session.findMany({
+      where: {
+        userId,
+        revokedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+      select: {
+        id: true,
+        userAgent: true,
+        ipAddress: true,
+        createdAt: true,
+        expiresAt: true,
+      },
+    });
+  },
+  revokeAll: async (userId: string) => {
+    return db.session.updateMany({
+      where: { userId, revokedAt: null },
       data: { revokedAt: new Date() },
     });
   },

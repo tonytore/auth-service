@@ -23,9 +23,5 @@ app.use(errorHandler);
 const PORT = Number(appConfig.PORT) || 4000;
 
 app.listen(PORT, "0.0.0.0", () => {
-    logger.info(
-      `Auth Service running on port http://localhost:${PORT}`,
-    );
-  });
-
-
+  logger.info(`Auth Service running on port http://localhost:${PORT}`);
+});

@@ -10,5 +10,11 @@ authRoute.get("/me", authMiddleware, authController.getMe);
 authRoute.post("/register", validate(registerSchema), authController.register);
 authRoute.post("/login", validate(loginSchema), authController.login);
 authRoute.post("/refresh", authController.refresh);
-authRoute.post("/logout", authMiddleware, authController.logout);
-
+authRoute.get("/sessions", authMiddleware, authController.listSessions);
+authRoute.post("/logout-current", authMiddleware, authController.logoutCurrent);
+authRoute.post("/logout-all", authMiddleware, authController.logoutAll);
+authRoute.post(
+  "/logout/:sessionId",
+  authMiddleware,
+  authController.logoutBySessionId
+);

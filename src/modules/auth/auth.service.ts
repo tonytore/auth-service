@@ -43,7 +43,17 @@ export const authService = {
     };
   },
 
-  login: async ({ email, password }: { email: string; password: string }) => {
+  login: async ({
+    email,
+    password,
+    userAgent,
+    ipAddress,
+  }: {
+    email: string;
+    password: string;
+    userAgent?: string;
+    ipAddress?: string;
+  }) => {
     const user = await authRepository.findByEmail(email);
 
     if (!user) {
@@ -55,12 +65,14 @@ export const authService = {
     if (!isValid) {
       throw new UnauthenticatedError("Invalid credentials", "AuthService");
     }
-   
-     const rowRefreshToken = generateRefreshToken();
+
+    const rowRefreshToken = generateRefreshToken();
     const hashedToken = hashToken(rowRefreshToken);
-    
+
     const session = await sessionRepository.create({
       userId: user.id,
+      userAgent,
+      ipAddress,
       refreshToken: hashedToken,
       expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days
     });
@@ -71,18 +83,12 @@ export const authService = {
       { expiresIn: appConfig.ACCESS_TOKEN_EXPIRY }
     );
 
-   
-
-    
-
     const { password: _password, ...authUser } = user;
 
     return { user: authUser, accessToken, refreshToken: rowRefreshToken };
   },
   getUserService: async (userId: string) => {
-    const users = await authRepository.listUserRepository();
-    
-    return users.filter((user) => user.id === userId);;
+      return authRepository.findById(userId)
   },
   refresh: async (refreshToken: string) => {
     const hashedToken = hashToken(refreshToken);
@@ -113,7 +119,11 @@ export const authService = {
     });
 
     const accessToken = jwt.sign(
-      { userId: session.user.id, role: session.user.role, sessionId: newSession.id },
+      {
+        userId: session.user.id,
+        role: session.user.role,
+        sessionId: newSession.id,
+      },
       appConfig.ACCESS_TOKEN_SECRET!,
       { expiresIn: appConfig.ACCESS_TOKEN_EXPIRY }
     );
@@ -122,5 +132,22 @@ export const authService = {
   },
   logout: async (sessionId: string) => {
     await authRepository.revokeSession(sessionId);
+  },
+  listSessions: async (userId: string) => {
+    const sessions = await authRepository.findActiveByUser(userId);
+    return sessions;
+  },
+  logoutBySessionId: async (sessionId: string, userId: string) => {
+    const session = await authRepository.findSessionById(sessionId);
+    if (!session || session.userId !== userId) {
+      throw new BadRequestError(
+        "Session not found or unauthorized",
+        "AuthService.logoutBySessionId"
+      );
+    }
+    await authRepository.revokeSession(sessionId);
+  },
+  logoutAll: async (userId: string) => {
+      await authRepository.revokeAll(userId);
   }
 };
