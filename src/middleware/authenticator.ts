@@ -4,7 +4,7 @@ import { logger } from "@/utils/logger/logger";
 import { verifyAccessToken } from "@/utils/helper/auth";
 
 import catchAsync from "@/utils/helper/catch_async";
-import { authRepository } from "@/modules/auth/auth.repository";
+import { sessionRepository } from "@/modules/auth/session.repository";
 
 export const authMiddleware = catchAsync(
   async (req: Request, _res: Response, next: NextFunction) => {
@@ -17,7 +17,7 @@ export const authMiddleware = catchAsync(
     }
 
     const payload = verifyAccessToken(accessToken);
-    const session = await authRepository.findSessionById(payload.sessionId);
+    const session = await sessionRepository.findSessionById(payload.sessionId);
 
     if (!session || session.revokedAt || session.expiresAt < new Date()) {
       throw new UnauthenticatedError(

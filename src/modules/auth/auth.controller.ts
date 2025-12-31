@@ -33,18 +33,14 @@ export const authController = {
       ipAddress,
     });
     res.cookie("accessToken", accessToken, appConfig.ACCESS_COOKIE_OPTIONS);
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: false,
-      maxAge: 1000 * 60 * 60 * 24 * 7,
-    });
+    res.cookie("refreshToken", refreshToken, appConfig.REFRESH_COOKIE_OPTIONS);
     return successResponse(
       res,
       "User Logged In Successfully",
       {
         data: {
-          user
+          user,
+          accessToken,
         },
       },
       200
@@ -52,7 +48,7 @@ export const authController = {
   }),
   getMe: catchAsync(async (req: Request, res: Response) => {
     const userId = req.user?.id;
-    const user = await authService.getUserService(userId);
+    const user = await authService.getMe(userId);
     logger.info("User List", user);
     return successResponse(res, "User List", user);
   }),
@@ -70,27 +66,21 @@ export const authController = {
       tokens.accessToken,
       appConfig.ACCESS_COOKIE_OPTIONS
     );
-    res.cookie("refreshToken", tokens.refreshToken, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: false,
-      maxAge: 1000 * 60 * 60 * 24 * 7,
-    });
+    res.cookie(
+      "refreshToken",
+      tokens.refreshToken,
+      appConfig.REFRESH_COOKIE_OPTIONS
+    );
     return successResponse(res, "Tokens refreshed successfully", null, 200);
   }),
 
-  logout: catchAsync(async (req: Request, res: Response) => {
-    await authService.logout(req.sessionId!);
-    res.clearCookie("accessToken");
-    return successResponse(res, "User logged out successfully", null, 200);
-  }),
   listSessions: catchAsync(async (req: Request, res: Response) => {
     const userId = req.user?.id;
     const sessions = await authService.listSessions(userId!);
     return successResponse(res, "User Sessions Retrieved Successfully", sessions);
   }),
   logoutCurrent: catchAsync(async (req: Request, res: Response) => {
-    await authService.logout(req.sessionId!);
+    await authService.logoutCurrent(req.sessionId!);
     res.clearCookie("accessToken");
     res.clearCookie("refreshToken");
     return successResponse(res, "Current session logged out successfully", null, 200);
@@ -98,7 +88,7 @@ export const authController = {
   logoutBySessionId: catchAsync(async (req: Request, res: Response) => {
     const { sessionId } = req.params;
     const userId = req.user?.id;
-    await authService.logoutBySessionId(sessionId,userId);
+    await authService.logoutBySessionId(sessionId, userId);
     return successResponse(res, "Session logged out successfully", null, 200);
   }),
   logoutAll: catchAsync(async (req: Request, res: Response) => {

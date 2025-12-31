@@ -21,19 +21,50 @@ export const sessionRepository = {
       },
     });
   },
-  // revokeSession: async (id: string) => {
-  //   return db.session.update({
-  //     where: { id },
-  //     data: { isRevoked: true },
-  //   });
-  // },
-  // revokedSessionByToken: async (hashedRefreshToken: string) => {
-  //   return db.session.updateMany({
-  //     where: {
-  //       refreshToken: hashedRefreshToken,
-  //       isRevoked: false
-  //     },
-  //     data: { isRevoked: true },
-  //   });
-  // },
+  revoke: async (id: string) => {
+    return db.session.update({
+      where: { id },
+      data: { revokedAt: new Date() },
+    });
+  },
+  revokeByRefreshToken: async (hashedRefreshToken: string) => {
+    return db.session.updateMany({
+      where: {
+        refreshToken: hashedRefreshToken,
+        revokedAt: null
+      },
+      data: { revokedAt: new Date() },
+    });
+  },
+  findSessionById: async (id: string) => {
+    return db.session.findUnique({
+      where: { id },
+      include: {
+        user: true,
+      },
+    });
+  },
+
+  findActiveByUser: async (userId: string) => {
+    return db.session.findMany({
+      where: {
+        userId,
+        revokedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+      select: {
+        id: true,
+        userAgent: true,
+        ipAddress: true,
+        createdAt: true,
+        expiresAt: true,
+      },
+    });
+  },
+  revokeAll: async (userId: string) => {
+    return db.session.updateMany({
+      where: { userId, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
+  },
 };

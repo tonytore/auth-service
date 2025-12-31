@@ -9,6 +9,7 @@ import {
 import appConfig from "../../config/app_config";
 import { generateRefreshToken, hashToken } from "@/utils/helper/token";
 import { sessionRepository } from "./session.repository";
+import { db } from "@/config/db";
 
 export interface UserData {
   email: string;
@@ -87,36 +88,38 @@ export const authService = {
 
     return { user: authUser, accessToken, refreshToken: rowRefreshToken };
   },
-  getUserService: async (userId: string) => {
-      return authRepository.findById(userId)
-  },
   refresh: async (refreshToken: string) => {
     const hashedToken = hashToken(refreshToken);
+
     const session = await sessionRepository.findByRefreshToken(hashedToken);
 
-    if (!session) {
+    if (!session || session.expiresAt < new Date() || session.revokedAt) {
       throw new UnauthenticatedError(
         "Invalid refresh token",
         "AuthService.refresh"
       );
     }
-    if (session.expiresAt < new Date() || session.revokedAt) {
-      throw new UnauthenticatedError(
-        "Refresh token expired",
-        "AuthService.refresh"
-      );
-    }
-
-    await authRepository.revokeSession(session.id);
 
     const newRefreshToken = generateRefreshToken();
     const newHashedRefreshToken = hashToken(newRefreshToken);
 
-    const newSession = await sessionRepository.create({
-      userId: session.userId,
-      refreshToken: newHashedRefreshToken,
-      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days
+    const newSession = await db.$transaction(async (tx) => {
+      await tx.session.update({
+        where: { id: session.id },
+        data: { revokedAt: new Date() },
+      });
+      return await tx.session.create({
+        data: {
+          userId: session.userId,
+          userAgent: session.userAgent,
+          ipAddress: session.ipAddress,
+          refreshToken: newHashedRefreshToken,
+          expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days
+        },
+      });
     });
+
+
 
     const accessToken = jwt.sign(
       {
@@ -130,24 +133,27 @@ export const authService = {
 
     return { accessToken, refreshToken: newRefreshToken };
   },
-  logout: async (sessionId: string) => {
-    await authRepository.revokeSession(sessionId);
+  getMe: async (userId: string) => {
+    return authRepository.findById(userId)
   },
   listSessions: async (userId: string) => {
-    const sessions = await authRepository.findActiveByUser(userId);
+    const sessions = await sessionRepository.findActiveByUser(userId);
     return sessions;
   },
+  logoutCurrent: async (sessionId: string) => {
+    await sessionRepository.revoke(sessionId);
+  },
   logoutBySessionId: async (sessionId: string, userId: string) => {
-    const session = await authRepository.findSessionById(sessionId);
+    const session = await sessionRepository.findSessionById(sessionId);
     if (!session || session.userId !== userId) {
       throw new BadRequestError(
         "Session not found or unauthorized",
         "AuthService.logoutBySessionId"
       );
     }
-    await authRepository.revokeSession(sessionId);
+    await sessionRepository.revoke(sessionId);
   },
   logoutAll: async (userId: string) => {
-      await authRepository.revokeAll(userId);
+    await sessionRepository.revokeAll(userId);
   }
 };

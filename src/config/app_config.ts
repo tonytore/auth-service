@@ -24,6 +24,13 @@ const appConfig = {
     sameSite: "lax" as const,
     maxAge: 15 * 60 * 1000,
   },
+  REFRESH_COOKIE_OPTIONS: {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict" as const,
+    path: '/api/auth/refresh',
+    maxAge: 1000 * 60 * 60 * 24 * 7,
+  },
   INTERNAL_SERVICE_TOKEN: process.env.INTERNAL_SERVICE_TOKEN,
 
 };
