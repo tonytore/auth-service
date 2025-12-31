@@ -3,8 +3,11 @@ import { loginSchema, registerSchema } from "./auth.schema";
 import { authController } from "./auth.controller";
 import { validate } from "../../middleware/validator";
 import { authMiddleware } from "@/middleware/authenticator";
+import { requireInternalAuth } from "@/middleware/internal_auth";
 
 export const authRoute = Router();
+
+authRoute.use(requireInternalAuth);
 
 authRoute.get("/me", authMiddleware, authController.getMe);
 authRoute.post("/register", validate(registerSchema), authController.register);

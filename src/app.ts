@@ -14,6 +14,7 @@ app.use(cookieParser());
 app.get("/", (_req, res) => {
   res.send("Auth Service is running");
 });
+app.get('/favicon.ico', (_req, res) => res.status(204).end());
 
 app.use("/auth", authRoute);
 

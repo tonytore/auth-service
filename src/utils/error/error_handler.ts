@@ -14,6 +14,15 @@ const errorHandler = (
     logger.error({ message: err.message, stack: err.stack, ip: req.ip });
     return;
   }
+  if (err.message === 'request aborted') {
+    logger.warn({
+      message: 'Client aborted request',
+      comingFrom: 'Client',
+      ip: req.ip,
+      userAgent: req.get('User-Agent'),
+    });
+    return;
+  }
 
   if (err instanceof CustomError) {
     const errorDetails = err.serializeErrors();
