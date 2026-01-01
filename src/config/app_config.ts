@@ -8,7 +8,7 @@ const appConfig = {
   DB_USER: process.env.DB_USER,
   BLOG_AUTH_DB: process.env.BLOG_AUTH_DB,
   DB_PASSWORD: process.env.DB_PASSWORD,
-  LOKI_URL: process.env.LOKI_URL || "http://localhost:3100",
+  LOKI_URL: process.env.LOKI_URL || "http://loki:3100",
   APP_NAME: process.env.APP_NAME,
   LOG_LEVEL: process.env.LOG_LEVEL,
   NODE_ENV: process.env.NODE_ENV as "development" | "production",
